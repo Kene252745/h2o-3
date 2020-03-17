@@ -1,13 +1,11 @@
 package ml.dmlc.xgboost4j.java;
 
-import hex.tree.xgboost.XGBoostModel;
-import hex.tree.xgboost.matrix.DenseMatrixFactory;
 import org.apache.log4j.Logger;
 import water.*;
 
 public class XGBoostUpdateTask extends AbstractXGBoostTask<XGBoostUpdateTask> {
 
-    private static final Logger LOG = Logger.getLogger(DenseMatrixFactory.class);
+    private static final Logger LOG = Logger.getLogger(XGBoostUpdateTask.class);
 
     private final int _tid;
 
@@ -38,12 +36,12 @@ public class XGBoostUpdateTask extends AbstractXGBoostTask<XGBoostUpdateTask> {
     }
 
     private static class FetchBoosterTask extends DTask<FetchBoosterTask> {
-        private final Key<XGBoostModel> _modelKey;
+        private final Key _modelKey;
 
         // OUT
         private byte[] _boosterBytes;
 
-        private FetchBoosterTask(Key<XGBoostModel> modelKey) {
+        private FetchBoosterTask(Key modelKey) {
             _modelKey = modelKey;
         }
 

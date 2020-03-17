@@ -23,7 +23,16 @@ public class XGBoostUtils {
 
     private static final Logger LOG = Logger.getLogger(XGBoostUtils.class);
 
-    public static String makeFeatureMap(Frame f, DataInfo di) {
+    public static String createFeatureMap(XGBoostModel model, Frame train) {
+        // Create a "feature map" and store in a temporary file (for Variable Importance, MOJO, ...)
+        DataInfo dataInfo = model.model_info().dataInfo();
+        assert dataInfo != null;
+        String featureMap = makeFeatureMap(train, dataInfo);
+        model.model_info().setFeatureMap(featureMap);
+        return featureMap;
+    }
+
+    private static String makeFeatureMap(Frame f, DataInfo di) {
         // set the names for the (expanded) columns
         String[] coefnames = di.coefNames();
         StringBuilder sb = new StringBuilder();
@@ -198,7 +207,7 @@ public class XGBoostUtils {
         }
     }
 
-    static Map<String, FeatureScore> parseFeatureScores(String[] modelDump) {
+    public static Map<String, FeatureScore> parseFeatureScores(String[] modelDump) {
         Map<String, FeatureScore> featureScore = new HashMap<>();
         for (String tree : modelDump) {
             for (String node : tree.split("\n")) {
