@@ -1,6 +1,7 @@
 package ml.dmlc.xgboost4j.java;
 
 import hex.tree.xgboost.BoosterParms;
+import hex.tree.xgboost.matrix.MatrixLoader;
 import water.H2O;
 import water.Key;
 import water.fvec.Frame;
@@ -21,9 +22,9 @@ public class XGBoostSetupTask extends XGBoostSaveMatrixTask {
   public XGBoostSetupTask(
       Key modelKey, String saveMatrixDirectory, BoosterParms boosterParms,
       byte[] checkpointToResume, Map<String, String> rabitEnv, boolean[] nodes,
-      XGBoostMatrixFactory factory
+      MatrixLoader loader
   ) {
-    super(modelKey, saveMatrixDirectory, nodes, factory);
+    super(modelKey, saveMatrixDirectory, nodes, loader);
     _boosterParms = boosterParms;
     _checkpoint = checkpointToResume;
     (_rabitEnv = new IcedHashMapGeneric.IcedHashMapStringString()).putAll(rabitEnv);

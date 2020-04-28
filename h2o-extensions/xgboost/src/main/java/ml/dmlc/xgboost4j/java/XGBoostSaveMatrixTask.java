@@ -1,5 +1,6 @@
 package ml.dmlc.xgboost4j.java;
 
+import hex.tree.xgboost.matrix.MatrixLoader;
 import org.apache.log4j.Logger;
 import water.H2O;
 import water.Key;
@@ -11,21 +12,21 @@ public class XGBoostSaveMatrixTask extends AbstractXGBoostTask<XGBoostSaveMatrix
 
     private static final Logger LOG = Logger.getLogger(XGBoostSaveMatrixTask.class);
 
-    private final XGBoostMatrixFactory _matrixFactory;
+    private final MatrixLoader _matrixLoader;
     private final String _saveMatrixDirectory;
     
     protected transient DMatrix matrix;
     
-    public XGBoostSaveMatrixTask(Key modelKey, String saveMatrixDirectory, boolean[] hasDMatrix, XGBoostMatrixFactory factory) {
+    public XGBoostSaveMatrixTask(Key modelKey, String saveMatrixDirectory, boolean[] hasDMatrix, MatrixLoader loader) {
         super(modelKey, hasDMatrix);
         _saveMatrixDirectory = saveMatrixDirectory;
-        _matrixFactory = factory;
+        _matrixLoader = loader;
     }
 
     @Override
     protected void execute() {
         try {
-            matrix = _matrixFactory.makeLocalMatrix();
+            matrix = _matrixLoader.makeLocalMatrix();
             if (_saveMatrixDirectory != null) {
                 File directory = new File(_saveMatrixDirectory);
                 if (directory.mkdirs()) {

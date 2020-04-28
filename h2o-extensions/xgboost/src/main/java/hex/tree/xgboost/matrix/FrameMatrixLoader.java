@@ -1,17 +1,21 @@
-package ml.dmlc.xgboost4j.java;
+package hex.tree.xgboost.matrix;
 
 import hex.tree.xgboost.XGBoostModel;
 import hex.tree.xgboost.XGBoostUtils;
+import ml.dmlc.xgboost4j.java.DMatrix;
+import ml.dmlc.xgboost4j.java.XGBoostError;
+import ml.dmlc.xgboost4j.java.XGBoostModelInfo;
+import ml.dmlc.xgboost4j.java.XGBoostSetupTask;
 import water.fvec.Frame;
 
-public class FrameXGBoostMatrixFactory extends XGBoostMatrixFactory {
+public class FrameMatrixLoader extends MatrixLoader {
 
     private final XGBoostModelInfo _modelInfo;
     private final XGBoostModel.XGBoostParameters _parms;
     private final boolean _sparse;
     private final Frame _trainFrame;
 
-    public FrameXGBoostMatrixFactory(
+    public FrameMatrixLoader(
         XGBoostModel model,
         XGBoostModel.XGBoostParameters parms,
         XGBoostSetupTask.FrameNodes train

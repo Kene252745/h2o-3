@@ -1,5 +1,7 @@
-package ml.dmlc.xgboost4j.java;
+package hex.tree.xgboost.matrix;
 
+import ml.dmlc.xgboost4j.java.DMatrix;
+import ml.dmlc.xgboost4j.java.XGBoostError;
 import water.DKV;
 import water.H2O;
 import water.Value;
@@ -12,11 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public class FileXGBoostMatrixFactory extends XGBoostMatrixFactory {
+public class FileMatrixLoader extends MatrixLoader {
     
     private final String matrixDir;
 
-    public FileXGBoostMatrixFactory(
+    public FileMatrixLoader(
         String matrixDir
     ) {
         this.matrixDir = matrixDir;

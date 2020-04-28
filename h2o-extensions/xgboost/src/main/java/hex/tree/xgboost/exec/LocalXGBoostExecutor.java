@@ -4,6 +4,9 @@ import hex.DataInfo;
 import hex.tree.xgboost.BoosterParms;
 import hex.tree.xgboost.XGBoostModel;
 import hex.tree.xgboost.XGBoostUtils;
+import hex.tree.xgboost.matrix.FileMatrixLoader;
+import hex.tree.xgboost.matrix.FrameMatrixLoader;
+import hex.tree.xgboost.matrix.MatrixLoader;
 import hex.tree.xgboost.rabit.RabitTrackerH2O;
 import hex.tree.xgboost.util.BoosterHelper;
 import hex.tree.xgboost.util.FeatureScore;
@@ -43,7 +46,7 @@ public class LocalXGBoostExecutor implements XGBoostExecutor {
         BoosterParms boosterParams = BoosterParms.fromMap(init.parms);
         boolean[] nodes = new boolean[H2O.CLOUD.size()];
         for (int i = 0; i < init.num_nodes; i++) nodes[i] = true;
-        XGBoostMatrixFactory f = new FileXGBoostMatrixFactory(init.matrix_dir_path);
+        MatrixLoader f = new FileMatrixLoader(init.matrix_dir_path);
         setupTask = new XGBoostSetupTask(
             modelKey, null, boosterParams, init.checkpoint_bytes, getRabitEnv(), nodes, f
         );
@@ -64,7 +67,7 @@ public class LocalXGBoostExecutor implements XGBoostExecutor {
         DataInfo dataInfo = model.model_info().dataInfo();
         BoosterParms boosterParms = XGBoostModel.createParams(parms, model._output.nclasses(), dataInfo.coefNames());
         model._output._native_parameters = boosterParms.toTwoDimTable();
-        XGBoostMatrixFactory f = new FrameXGBoostMatrixFactory(model, parms, trainFrameNodes);
+        MatrixLoader f = new FrameMatrixLoader(model, parms, trainFrameNodes);
         setupTask = new XGBoostSetupTask(
             modelKey, parms._save_matrix_directory, boosterParms, checkpointBytes, getRabitEnv(), trainFrameNodes._nodes, f
         );
