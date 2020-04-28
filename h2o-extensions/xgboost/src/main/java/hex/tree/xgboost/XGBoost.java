@@ -26,7 +26,6 @@ import water.fvec.Frame;
 import water.fvec.RebalanceDataSet;
 import water.fvec.Vec;
 import water.util.ArrayUtils;
-import water.util.Log;
 import water.util.Timer;
 import water.util.TwoDimTable;
 
@@ -110,7 +109,7 @@ public class XGBoost extends ModelBuilder<XGBoostModel,XGBoostModel.XGBoostParam
       if (H2O.SELF.getSecurityManager().securityEnabled && !H2O.ARGS.allow_insecure_xgboost) {
         throw new H2OIllegalArgumentException("Cannot run XGBoost on an SSL enabled cluster larger than 1 node. XGBoost does not support SSL encryption.");
       } else {
-        Log.info("Executing XGBoost on an secured cluster might compromise security.");
+        LOG.info("Executing XGBoost on an secured cluster might compromise security.");
       }
     }
     if (H2O.ARGS.client && _parms._build_tree_one_node)
@@ -365,7 +364,7 @@ public class XGBoost extends ModelBuilder<XGBoostModel,XGBoostModel.XGBoostParam
       }
 
       // XGBoostExecutor exec = new LocalXGBoostExecutor(model, _train, _parms);
-      XGBoostExecutor exec = new RemoteXGBoostExecutor("http://localhost:54330", model, _train, _parms);
+      XGBoostExecutor exec = new RemoteXGBoostExecutor("http://localhost:54321", model, _train, _parms);
       try {
         model.model_info().setBoosterBytes(exec.setup());
         scoreAndBuildTrees(model, exec);

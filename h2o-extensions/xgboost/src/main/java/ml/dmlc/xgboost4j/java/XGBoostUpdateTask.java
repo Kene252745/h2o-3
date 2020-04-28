@@ -21,7 +21,6 @@ public class XGBoostUpdateTask extends AbstractXGBoostTask<XGBoostUpdateTask> {
             throw new IllegalStateException("Boosting iteration didn't produce a valid Booster.");
     }
 
-    // This is called from driver
     public byte[] getBoosterBytes() {
         final H2ONode boosterNode = getBoosterNode();
         final byte[] boosterBytes;

@@ -1,6 +1,7 @@
 package hex.tree.xgboost.util;
 
 import ml.dmlc.xgboost4j.java.*;
+import org.apache.log4j.Logger;
 import water.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -14,6 +15,9 @@ import java.util.Map;
  */
 public class BoosterHelper {
 
+  private static final Logger LOG = Logger.getLogger(BoosterHelper.class);
+
+
   public static Booster loadModel(InputStream in) throws XGBoostError, IOException {
     return XGBoost.loadModel(in);
   }
@@ -24,7 +28,7 @@ public class BoosterHelper {
     }
     try {
       Booster booster = XGBoost.loadModel(new ByteArrayInputStream(boosterBytes));
-      Log.debug("Booster created from bytes, raw size = " + boosterBytes.length);
+      LOG.debug("Booster created from bytes, raw size = " + boosterBytes.length);
       return booster;
     } catch (XGBoostError | IOException exception) {
       throw new IllegalStateException("Failed to load the booster.", exception);

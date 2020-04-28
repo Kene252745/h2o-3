@@ -23,9 +23,34 @@ public class RegisterRestApi extends AlgoAbstractRegister {
     registerModelBuilder(context, xgBoostMB, version);
     // Register Remote XGBoost execution
     context.registerEndpoint(
-        "remote_xgb", "POST /3/XGBoostExecutor", 
-        RemoteXGBoostHandler.class, "exec",
-        "Remote XGBoost execution"
+        "remote_xgb", "POST /3/XGBoostExecutor.init",
+        RemoteXGBoostHandler.class, "init",
+        "Remote XGBoost execution - init"
+    );
+    context.registerEndpoint(
+        "remote_xgb", "POST /3/XGBoostExecutor.setup",
+        RemoteXGBoostHandler.class, "setup",
+        "Remote XGBoost execution - setup"
+    );
+    context.registerEndpoint(
+        "remote_xgb", "POST /3/XGBoostExecutor.update",
+        RemoteXGBoostHandler.class, "update",
+        "Remote XGBoost execution - update"
+    );
+    context.registerEndpoint(
+        "remote_xgb", "POST /3/XGBoostExecutor.getFeatures",
+        RemoteXGBoostHandler.class, "getFeatureMap",
+        "Remote XGBoost execution - get feature map"
+    );
+    context.registerEndpoint(
+        "remote_xgb", "POST /3/XGBoostExecutor.getBooster",
+        RemoteXGBoostHandler.class, "getBooster",
+        "Remote XGBoost execution - get booster"
+    );
+    context.registerEndpoint(
+        "remote_xgb", "POST /3/XGBoostExecutor.cleanup",
+        RemoteXGBoostHandler.class, "cleanup",
+        "Remote XGBoost execution - cleanup"
     );
   }
 
