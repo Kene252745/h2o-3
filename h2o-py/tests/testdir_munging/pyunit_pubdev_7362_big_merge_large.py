@@ -8,7 +8,7 @@ def check_big_merge():
     h2o.remove_all()
     nrow = 1000000
     ncol = 2
-    iRange = nrow/10
+    iRange = 100000
     frame1 = h2o.create_frame(rows=nrow, cols=ncol, integer_fraction=1, seed = 12345, integer_range = iRange, missing_fraction=0.0)
     frame2 = h2o.create_frame(rows = nrow, cols = ncol, integer_fraction=1, seed = 54321, integer_range = iRange, missing_fraction=0.0)
 

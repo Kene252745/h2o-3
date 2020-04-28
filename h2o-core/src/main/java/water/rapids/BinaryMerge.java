@@ -374,10 +374,10 @@ class BinaryMerge extends DTask<BinaryMerge> {
    */
   private void binaryMergeOneMSB(long leftLowIn, long leftUppIn, long riteLowIn, long riteUppIn) {
     if (!_allLeft && riteUppIn == 0) return;  // no merging possible with empty rite frame here
-    boolean leftFrameIterate = _allLeft ? true : ((leftUppIn - leftLowIn) > (riteUppIn - riteLowIn) ? false : true);
+    final boolean leftFrameIterate = _allLeft ? true : ((leftUppIn - leftLowIn) > (riteUppIn - riteLowIn) ? false : true);
     long iterIndex = leftFrameIterate ? leftLowIn + 1 : riteLowIn + 1;
-    long iterUppIn = leftFrameIterate ? leftUppIn : riteUppIn;
-    long binarySearchUppIn = leftFrameIterate ? riteUppIn : leftUppIn;
+    final long iterUppIn = leftFrameIterate ? leftUppIn : riteUppIn;
+    final long binarySearchUppIn = leftFrameIterate ? riteUppIn : leftUppIn;
     long iterHigh, binarySearchLow, binarySearchHigh;  // temp variables to perform search
     MidSearchInfo binarySearchInfo = new MidSearchInfo(0, leftFrameIterate ? riteLowIn : leftLowIn,
             leftFrameIterate ? riteUppIn : leftUppIn); // store match row, riteLow, riteUpp
@@ -395,11 +395,11 @@ class BinaryMerge extends DTask<BinaryMerge> {
       if (binarySearchInfo._matchIndex >= 0) {  // match found in riteFrame, 
         // find duplicates in binarysearch frame, could be lower or higher than midSearchInd[0]
         binarySearchLow = binarySearchInfo._matchIndex;
-        long tempValue = binarySearchInfo._matchIndex - 1;
-        while (tempValue >= 0 && frameKeyEqual(leftFrameIterate ? _riteKO._key : _leftKO._key, binarySearchInfo._matchIndex,
-                tempValue, leftFrameIterate ? _riteKO : _leftKO, leftFrameIterate ? _riteSB : _leftSB)) {
+        long tempSearchLowIndex = binarySearchInfo._matchIndex - 1;
+        while (tempSearchLowIndex >= 0 && frameKeyEqual(leftFrameIterate ? _riteKO._key : _leftKO._key, binarySearchInfo._matchIndex,
+                tempSearchLowIndex, leftFrameIterate ? _riteKO : _leftKO, leftFrameIterate ? _riteSB : _leftSB)) {
           binarySearchLow--;
-          tempValue--;
+          tempSearchLowIndex--;
         }
 
         binarySearchHigh = binarySearchInfo._matchIndex + 1;
@@ -416,7 +416,7 @@ class BinaryMerge extends DTask<BinaryMerge> {
       }
       binarySearchInfo._upperSearchIndex = leftFrameIterate ? riteUppIn : leftUppIn;
       // organize merged frame for each iteration over iterate frame
-      populate_ret1st_retLen((int) (iterHigh - iterIndex), binarySearchLen, iterIndex, binarySearchInfo._matchIndex, leftFrameIterate);
+      populateRet1StRetLen((int) (iterHigh - iterIndex), binarySearchLen, iterIndex, binarySearchInfo._matchIndex, leftFrameIterate);
       iterIndex = iterHigh; // next row index to iterate over
     }
   }
@@ -433,8 +433,8 @@ class BinaryMerge extends DTask<BinaryMerge> {
     }
   }
   
-  private void populate_ret1st_retLen(int iterLen, int binarySearchLen, long iterIndex, long matchIndex, 
-                                      boolean leftFrameIterate) {
+  private void populateRet1StRetLen(int iterLen, int binarySearchLen, long iterIndex, long matchIndex,
+                                    boolean leftFrameIterate) {
     if (!_allLeft && (iterLen==0 || binarySearchLen==0)) return; 
     if (_allLeft && iterLen > 1) _oneToManyMatch=true;  // duplicate keys found in leftFrame
     _numRowsInResult += Math.max(1,iterLen)*Math.max(1,binarySearchLen);  // add contribution to final merged frame
