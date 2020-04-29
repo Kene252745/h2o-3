@@ -44,6 +44,7 @@ public class StackedEnsembleV99 extends ModelBuilderSchema<StackedEnsemble,Stack
       "metalearner_fold_assignment",
       "metalearner_fold_column",
       "metalearner_params",
+      "weights_column",
       "seed",
       "keep_levelone_frame",
       "export_checkpoints_dir"
