@@ -11,12 +11,17 @@ public class XGBoostExecReq extends Iced<XGBoostExecReq> implements Serializable
         public int num_nodes;
         public IcedHashMap<String, Object> parms;
         public String matrix_dir_path;
+        public String[] nodes;
         public byte[] checkpoint_bytes;
         public String featureMap;
     }
 
     public static class Update extends XGBoostExecReq {
         public int treeId;
+    }
+
+    public static class GetMatrix extends XGBoostExecReq {
+        public String matrix_dir_path;
     }
 
 }

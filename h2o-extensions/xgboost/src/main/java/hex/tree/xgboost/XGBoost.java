@@ -363,8 +363,9 @@ public class XGBoost extends ModelBuilder<XGBoostModel,XGBoostModel.XGBoostParam
         model._output._sparse = isTrainDatasetSparse();
       }
 
-      // XGBoostExecutor exec = new LocalXGBoostExecutor(model, _train, _parms);
-      XGBoostExecutor exec = new RemoteXGBoostExecutor("http://localhost:54321", model, _train, _parms);
+      //XGBoostExecutor exec = new LocalXGBoostExecutor(model, _train);
+      //XGBoostExecutor exec = new RemoteXGBoostExecutor("localhost:54330", model, _train);
+      XGBoostExecutor exec = new RemoteXGBoostExecutor(H2O.CLOUD.leader().getIpPortString(), model, _train);
       try {
         model.model_info().setBoosterBytes(exec.setup());
         scoreAndBuildTrees(model, exec);

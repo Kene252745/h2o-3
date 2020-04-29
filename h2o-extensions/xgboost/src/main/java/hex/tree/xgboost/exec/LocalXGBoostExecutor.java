@@ -4,9 +4,9 @@ import hex.DataInfo;
 import hex.tree.xgboost.BoosterParms;
 import hex.tree.xgboost.XGBoostModel;
 import hex.tree.xgboost.XGBoostUtils;
-import hex.tree.xgboost.matrix.FileMatrixLoader;
 import hex.tree.xgboost.matrix.FrameMatrixLoader;
 import hex.tree.xgboost.matrix.MatrixLoader;
+import hex.tree.xgboost.matrix.RemoteMatrixLoader;
 import hex.tree.xgboost.rabit.RabitTrackerH2O;
 import hex.tree.xgboost.util.BoosterHelper;
 import hex.tree.xgboost.util.FeatureScore;
@@ -45,10 +45,10 @@ public class LocalXGBoostExecutor implements XGBoostExecutor {
         rt = new RabitTrackerH2O(init.num_nodes);
         BoosterParms boosterParams = BoosterParms.fromMap(init.parms);
         boolean[] nodes = new boolean[H2O.CLOUD.size()];
-        for (int i = 0; i < init.num_nodes; i++) nodes[i] = true;
-        MatrixLoader f = new FileMatrixLoader(init.matrix_dir_path);
+        for (int i = 0; i < init.num_nodes; i++) nodes[i] = init.nodes[i] != null;
+        MatrixLoader loader = new RemoteMatrixLoader(init.matrix_dir_path, init.nodes);
         setupTask = new XGBoostSetupTask(
-            modelKey, null, boosterParams, init.checkpoint_bytes, getRabitEnv(), nodes, f
+            modelKey, null, boosterParams, init.checkpoint_bytes, getRabitEnv(), nodes, loader
         );
         featureMapFile = createFeatureMapFile(init.featureMap);
     }
@@ -56,20 +56,21 @@ public class LocalXGBoostExecutor implements XGBoostExecutor {
     /**
      * Used when executing from a local model
      */
-    public LocalXGBoostExecutor(XGBoostModel model, Frame train, XGBoostModel.XGBoostParameters parms) {
+    public LocalXGBoostExecutor(XGBoostModel model, Frame train) {
         modelKey = model._key;
         XGBoostSetupTask.FrameNodes trainFrameNodes = XGBoostSetupTask.findFrameNodes(train);
         rt = new RabitTrackerH2O(trainFrameNodes.getNumNodes());
         byte[] checkpointBytes = null;
-        if (parms.hasCheckpoint()) {
+        if (model._parms.hasCheckpoint()) {
             checkpointBytes = model.model_info()._boosterBytes;
         }
         DataInfo dataInfo = model.model_info().dataInfo();
-        BoosterParms boosterParms = XGBoostModel.createParams(parms, model._output.nclasses(), dataInfo.coefNames());
+        BoosterParms boosterParms = XGBoostModel.createParams(model._parms, model._output.nclasses(), dataInfo.coefNames());
         model._output._native_parameters = boosterParms.toTwoDimTable();
-        MatrixLoader f = new FrameMatrixLoader(model, parms, trainFrameNodes);
+        MatrixLoader loader = new FrameMatrixLoader(model, train);
         setupTask = new XGBoostSetupTask(
-            modelKey, parms._save_matrix_directory, boosterParms, checkpointBytes, getRabitEnv(), trainFrameNodes._nodes, f
+            modelKey, model._parms._save_matrix_directory, boosterParms, checkpointBytes, 
+            getRabitEnv(), trainFrameNodes._nodes, loader
         );
         String featureMap = XGBoostUtils.createFeatureMap(model, train);
         featureMapFile = createFeatureMapFile(featureMap);

@@ -5,19 +5,25 @@ import hex.schemas.XGBoostExecReqV3;
 import hex.schemas.XGBoostExecRespV3;
 import hex.tree.xgboost.exec.LocalXGBoostExecutor;
 import hex.tree.xgboost.exec.XGBoostExecReq;
+import ml.dmlc.xgboost4j.java.XGBoostSaveMatrixTask;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 import water.AutoBuffer;
 import water.Key;
 import water.api.Handler;
 import water.api.StreamingSchema;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RemoteXGBoostHandler extends Handler {
-    
+
+    private static final Logger LOG = Logger.getLogger(RemoteXGBoostHandler.class);
+
     private static final Map<Key, LocalXGBoostExecutor> REGISTRY = new HashMap<>();
 
     private XGBoostExecRespV3 makeResponse(LocalXGBoostExecutor exec) {
@@ -33,6 +39,11 @@ public class RemoteXGBoostHandler extends Handler {
             }
         });
     }
+
+    @SuppressWarnings("unchecked")
+    private <T> T readReq(XGBoostExecReqV3 req) {
+        return (T) AutoBuffer.javaSerializeReadPojo(Base64.decodeBase64(req.data));
+    }
     
     private LocalXGBoostExecutor getExecutor(XGBoostExecReqV3 req) {
         return REGISTRY.get(req.key.key());
@@ -40,7 +51,7 @@ public class RemoteXGBoostHandler extends Handler {
 
     @SuppressWarnings("unused")
     public XGBoostExecRespV3 init(int ignored, XGBoostExecReqV3 req) {
-        XGBoostExecReq.Init init = (XGBoostExecReq.Init) AutoBuffer.javaSerializeReadPojo(Base64.decodeBase64(req.data));
+        XGBoostExecReq.Init init = readReq(req);
         LocalXGBoostExecutor exec = new LocalXGBoostExecutor(req.key.key(), init);
         REGISTRY.put(exec.modelKey, exec);
         return makeResponse(exec);
@@ -56,7 +67,7 @@ public class RemoteXGBoostHandler extends Handler {
     @SuppressWarnings("unused")
     public XGBoostExecRespV3 update(int ignored, XGBoostExecReqV3 req) {
         LocalXGBoostExecutor exec = getExecutor(req);
-        XGBoostExecReq.Update update = (XGBoostExecReq.Update) AutoBuffer.javaSerializeReadPojo(Base64.decodeBase64(req.data));
+        XGBoostExecReq.Update update = readReq(req);
         exec.update(update.treeId);
         return makeResponse(exec);
     }
@@ -81,6 +92,24 @@ public class RemoteXGBoostHandler extends Handler {
         exec.cleanup();
         REGISTRY.remove(exec.modelKey);
         return makeResponse(exec);
+    }
+
+    @SuppressWarnings("unused")
+    public StreamingSchema getMatrix(int ignored, XGBoostExecReqV3 req) {
+        XGBoostExecReq.GetMatrix matrix = readReq(req);
+        File matrixFile = XGBoostSaveMatrixTask.getMatrixFile(new File(matrix.matrix_dir_path));
+        return new StreamingSchema(os -> {
+            LOG.debug("Serving up matrix data file " + matrixFile);
+            try {
+                IOUtils.copyStream(new FileInputStream(matrixFile), os);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed writing data to response.", e);
+            } finally {
+                LOG.debug("Deleting matrix file " + matrixFile);
+                matrixFile.delete();
+            }
+        });
+
     }
 
 }
