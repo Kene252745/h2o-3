@@ -172,11 +172,9 @@ public class Merge {
       // run the merge for the whole lefts that start after the last right
         if (allLeft) {  // not worthy restricting length here unless store column max.
           for (int leftMSB = (int) leftMSBto + 1; leftMSB <= 255; leftMSB++) {
-            BinaryMerge bm = new BinaryMerge(new BinaryMerge.FFSB(leftFrame, leftMSB, leftShift,
-                    leftIndex._bytesUsed, leftIndex._base),
-                    new BinaryMerge.FFSB(rightFrame,/*rightMSB*/-1, riteShift,
-                            riteIndex._bytesUsed, riteIndex._base),
-                    true);
+            BinaryMerge bm = new BinaryMerge(new BinaryMerge.FFSB(leftFrame, leftMSB, leftShift, leftIndex._bytesUsed,
+                    leftIndex._base), new BinaryMerge.FFSB(rightFrame,/*rightMSB*/-1, riteShift,
+                    riteIndex._bytesUsed, riteIndex._base), true);
             bmList.add(bm);
             fs.add(new RPC<>(SplitByMSBLocal.ownerOfMSB(leftMSB), bm).call());
           }
