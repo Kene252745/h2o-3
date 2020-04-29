@@ -177,6 +177,7 @@ abstract public class ModelBuilder<M extends Model<M,P,O>, P extends Model.Param
     mb._job = job;
     mb._result = result;
     mb._parms = BUILDERS[idx]._parms.clone();
+    mb._input_parms = BUILDERS[idx]._parms.clone();
     return mb;
   }
 
@@ -198,6 +199,8 @@ abstract public class ModelBuilder<M extends Model<M,P,O>, P extends Model.Param
   /** All the parameters required to build the model. */
   public P _parms;              // Not final, so CV can set-after-clone
 
+  /** All the parameters required to build the model. */
+  public P _input_parms;
 
   /** Training frame: derived from the parameter's training frame, excluding
    *  all ignored columns, all constant and bad columns, perhaps flipping the
@@ -245,7 +248,7 @@ abstract public class ModelBuilder<M extends Model<M,P,O>, P extends Model.Param
         Scope.enter();
         _parms.read_lock_frames(_job); // Fetch & read-lock input frames
         computeImpl();
-        computeEffectiveParameters();
+        setInputValues();
         saveModelCheckpointIfConfigured();
       } finally {
         _parms.read_unlock_frames(_job);
@@ -273,28 +276,12 @@ abstract public class ModelBuilder<M extends Model<M,P,O>, P extends Model.Param
     }
 
     public abstract void computeImpl();
-    
-    public final void computeEffectiveParameters() {
+
+    public final void setInputValues() {
       M model = _result.get();
       if (model != null) {
-        model._effective_parms = (P) model._parms.clone();
-        model.computeEffectiveParameters();
-        checkEffectiveParmsDoesNotContainAuto(model._effective_parms);
+        model.setInputParms(_input_parms);
       }
-    }
-  }
-
-  public void checkEffectiveParmsDoesNotContainAuto(Model.Parameters effectiveParameters){
-    try {
-      for (Field field : effectiveParameters.getClass().getFields()) {
-        Class type = field.getType();
-        Object value = field.get(effectiveParameters);
-        if (value != null){
-          assert(!"AUTO".equalsIgnoreCase(value.toString())) : "Found AUTO value in effective parameters: " + field.getName();
-        }
-      }
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException("Error while checking params for auto values", e);
     }
   }
 

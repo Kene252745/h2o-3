@@ -24,7 +24,8 @@ def test_aggregator_effective_parameters():
     agg2 = H2OAggregatorEstimator(target_num_exemplars=1000, rel_tol_num_exemplars=0.5)
     agg2.train(training_frame=frame)
 
-    assert agg1.actual_params['categorical_encoding'] == agg2.actual_params['categorical_encoding']
+    assert agg2.parms['categorical_encoding']['input_value'] == "AUTO"
+    assert agg2.parms['categorical_encoding']['actual_value'] == agg1.parms['categorical_encoding']['actual_value']
 
 if __name__ == "__main__":
   pyunit_utils.standalone_test(test_aggregator_effective_parameters)

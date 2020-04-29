@@ -59,10 +59,8 @@ public class GAMModel extends Model<GAMModel, GAMModel.GAMParameters, GAMModel.G
     assert(Arrays.equals(_key._kb, selfKey._kb));
   }
   
-  @Override
-  public void computeEffectiveParameters(){
-    super.computeEffectiveParameters();
-    EffectiveParametersUtils.initFoldAssignment(_parms, _effective_parms);
+  public void initActualParamValuesAfterGlmCreation(){
+    EffectiveParametersUtils.initFoldAssignment(_parms);
   }
 
   public TwoDimTable copyTwoDimTable(TwoDimTable table) {

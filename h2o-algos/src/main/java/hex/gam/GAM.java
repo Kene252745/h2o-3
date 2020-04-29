@@ -370,6 +370,7 @@ public class GAM extends ModelBuilder<GAMModel, GAMModel.GAMParameters, GAMModel
         }
         _job.update(1, "calling GLM to build GAM model...");
         GLMModel glmModel = buildGLMModel(_parms, newTFrame); // obtained GLM model
+        model.initActualParamValuesAfterGlmCreation();
         Scope.track_generic(glmModel);
         _job.update(0, "Building out GAM model...");
         fillOutGAMModel(glmModel, model, dinfo); // build up GAM model

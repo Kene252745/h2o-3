@@ -100,13 +100,16 @@ public class GBMModel extends SharedTreeModelWithContributions<GBMModel, GBMMode
   }
 
   @Override
-  public void computeEffectiveParameters() {
-    super.computeEffectiveParameters();
-    EffectiveParametersUtils.initCategoricalEncoding(_parms, _effective_parms, _output._nclasses, Parameters.CategoricalEncodingScheme.Enum);
-    EffectiveParametersUtils.initStoppingMetric(_parms, _effective_parms, _output.isClassifier(), _output.isAutoencoder());
-    EffectiveParametersUtils.initDistribution(_parms, _effective_parms, _output._nclasses);
-    EffectiveParametersUtils.initFoldAssignment(_parms, _effective_parms);
-    EffectiveParametersUtils.initHistogramType(_parms, _effective_parms);
+  public void initActualParamValues() {
+    super.initActualParamValues();
+    EffectiveParametersUtils.initFoldAssignment(_parms);
+    EffectiveParametersUtils.initHistogramType(_parms);
+  }
+  
+  public void initActualParamValuesAfterOutputSetup(int nclasses, boolean isClassifier) {
+    EffectiveParametersUtils.initCategoricalEncoding(_parms, nclasses, Parameters.CategoricalEncodingScheme.Enum);
+    EffectiveParametersUtils.initStoppingMetric(_parms, isClassifier, false);
+    EffectiveParametersUtils.initDistribution(_parms, nclasses);
   }
 
   @Override

@@ -355,6 +355,8 @@ public class XGBoost extends ModelBuilder<XGBoostModel,XGBoostModel.XGBoostParam
         model._output._sparse = isTrainDatasetSparse();
       }
 
+      model.initActualParamValuesAfterOutputSetup(isClassifier(), _nclass);
+      
       File featureMapFile = null;
       try {
         

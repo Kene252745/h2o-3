@@ -4,6 +4,7 @@ import hex.*;
 import hex.deeplearning.DeepLearningModel.DeepLearningParameters;
 import hex.deeplearning.DeepLearningModel.DeepLearningParameters.MissingValuesHandling;
 import hex.glm.GLMTask;
+import hex.util.EffectiveParametersUtils;
 import hex.util.LinearAlgebraUtils;
 import water.*;
 import water.exceptions.H2OIllegalArgumentException;
@@ -17,6 +18,7 @@ import water.util.Log;
 import water.util.MRUtils;
 import water.util.PrettyPrint;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -203,14 +205,31 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
   public class DeepLearningDriver extends Driver {
     @Override public void computeImpl() {
       init(true); //this can change the seed if it was set to -1
-      long cs = _parms.checksum();
+      initActualParamValues();
+      Model.Parameters parmsToCheck = _parms.clone();
       // Something goes wrong
       if (error_count() > 0)
         throw H2OModelBuilderIllegalArgumentException.makeFromBuilder(DeepLearning.this);
       buildModel();
       //check that _parms isn't changed during DL model training
-      long cs2 = _parms.checksum();
-      assert(cs == cs2);
+      Model.Parameters parmsToCheck2 = _parms.clone();
+      //check that all members of _param apart of those which were originally set to AUTO haven't changed during DL model training
+      checkNonAutoParmsNotChanged(parmsToCheck, parmsToCheck2);
+    }
+
+    public void checkNonAutoParmsNotChanged(Model.Parameters params1, Model.Parameters params2){
+      try {
+        for (Field field : params1.getClass().getFields()) {
+          Class type = field.getType();
+          Object value1 = field.get(params1);
+          if (value1 != null && !"AUTO".equalsIgnoreCase(value1.toString())){
+            Object value2 = field.get(params2);
+            assert(value1.toString().equalsIgnoreCase(value2.toString())) : "Found non-AUTO value in _parms which has changed during DL model training";
+          }
+        }
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException("Error while checking param changes during DL model training", e);
+      }
     }
 
     /**
@@ -303,6 +322,7 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
         }
       }
       trainModel(cp);
+      _parms._distribution = cp.model_info().get_params()._distribution;
       for (Key k : removeMe) DKV.remove(k);
 
       // clean up, but don't delete weights and biases if user asked for export
@@ -495,6 +515,10 @@ public class DeepLearning extends ModelBuilder<DeepLearningModel,DeepLearningMod
       return model;
     }
 
+    public void initActualParamValues() {
+      EffectiveParametersUtils.initStoppingMetric(_parms, isClassifier(), isSupervised());
+      EffectiveParametersUtils.initCategoricalEncoding(_parms, _nclass, Model.Parameters.CategoricalEncodingScheme.OneHotInternal);
+    }
 
     /**
      * Compute the fraction of rows that need to be used for training during one iteration

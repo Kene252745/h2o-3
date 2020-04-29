@@ -268,7 +268,7 @@ public final class SchemaMetadata extends Iced {
           return "Polymorphic";
         } else {
           // Special cases: polymorphic metadata fields that can contain scalars, Schemas (any Iced, actually), or arrays of these:
-          if (schema instanceof ModelParameterSchemaV3 && ("default_value".equals(field_name) || "actual_value".equals(field_name)))
+          if (schema instanceof ModelParameterSchemaV3 && ("default_value".equals(field_name) || "actual_value".equals(field_name) || "input_value".equals(field_name)))
             return "Polymorphic";
 
           if ((schema instanceof FieldMetadataV3) && "value".equals(field_name))

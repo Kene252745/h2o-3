@@ -23,9 +23,11 @@ def test_isolation_forrest_effective_parameters():
     if2 = H2OIsolationForestEstimator(ntrees=7, seed=12, sample_size=5, stopping_rounds=3, stopping_metric = 'anomaly_score', categorical_encoding="Enum")
     if2.train(training_frame=train2)
 
-    assert if1.actual_params['stopping_metric'] == if2.actual_params['stopping_metric']
+    assert if1.parms['stopping_metric']['input_value'] == 'AUTO'
+    assert if1.parms['stopping_metric']['actual_value'] == if2.parms['stopping_metric']['actual_value']
     assert if1._model_json['output']['training_metrics']._metric_json['mean_score'] == if2._model_json['output']['training_metrics']._metric_json['mean_score']
-    assert if1.actual_params['categorical_encoding'] == if2.actual_params['categorical_encoding']
+    assert if1.parms['categorical_encoding']['input_value'] == 'AUTO'
+    assert if1.parms['categorical_encoding']['actual_value'] == if2.parms['categorical_encoding']['actual_value']
 
 if __name__ == "__main__":
   pyunit_utils.standalone_test(test_isolation_forrest_effective_parameters)

@@ -25,8 +25,10 @@ def test_k_means_effective_parameters():
     km2 = H2OKMeansEstimator(seed=1234, categorical_encoding="Enum", nfolds=5, fold_assignment='Random')
     km2.train(x=["economy_20mpg", "displacement", "power", "weight", "acceleration", "year"], training_frame=cars)
 
-    assert km1.actual_params['categorical_encoding'] == km2.actual_params['categorical_encoding']
-    assert km1.actual_params['fold_assignment'] == km2.actual_params['fold_assignment']
+    assert km1.parms['categorical_encoding']['input_value'] == 'AUTO'
+    assert km1.parms['categorical_encoding']['actual_value'] == km2.parms['categorical_encoding']['actual_value']
+    assert km1.parms['fold_assignment']['input_value'] == 'AUTO'
+    assert km1.parms['fold_assignment']['actual_value'] == km2.parms['fold_assignment']['actual_value']
 
 if __name__ == "__main__":
   pyunit_utils.standalone_test(test_k_means_effective_parameters)

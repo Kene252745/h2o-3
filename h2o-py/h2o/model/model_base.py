@@ -69,7 +69,8 @@ class ModelBase(h2o_meta(Keyed)):
         params = {}
         for p in self.parms:
             params[p] = {"default": self.parms[p]["default_value"],
-                         "actual": self.parms[p]["actual_value"]}
+                         "actual": self.parms[p]["actual_value"],
+                         "input": self.parms[p]["input_value"]}
         return params
 
 
@@ -90,11 +91,11 @@ class ModelBase(h2o_meta(Keyed)):
                             "training_frame": "name",
                             "validation_frame": "name"}
         params = {}
-        for p in self._effective_parms:
+        for p in self.parms:
             if p in params_to_select.keys():
-                params[p] = (self._effective_parms[p].get("actual_value") or {}).get(params_to_select[p], None)
+                params[p] = (self.parms[p].get("actual_value") or {}).get(params_to_select[p], None)
             else:
-                params[p] = self._effective_parms[p]["actual_value"]
+                params[p] = self.parms[p]["actual_value"]
         return params
 
 

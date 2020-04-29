@@ -45,6 +45,9 @@ public class ModelParameterSchemaV3 extends SchemaV3<Iced, ModelParameterSchemaV
   @API(help="actual value as set by the user and / or modified by the ModelBuilder, e.g., 10", direction=API.Direction.OUTPUT)
   public Iced actual_value;
 
+  @API(help="input value as set by the user, e.g., 10", direction=API.Direction.OUTPUT)
+  public Iced input_value;
+
   @API(help="the importance of the parameter, used by the UI, e.g. \"critical\", \"extended\" or \"expert\"", direction=API.Direction.OUTPUT)
   public String level;
 
@@ -64,7 +67,7 @@ public class ModelParameterSchemaV3 extends SchemaV3<Iced, ModelParameterSchemaV
   }
 
   /** TODO: refactor using SchemaMetadata. */
-  public ModelParameterSchemaV3(ModelParametersSchemaV3 schema, ModelParametersSchemaV3 default_schema, Field f) {
+  public ModelParameterSchemaV3(ModelParametersSchemaV3 schema, ModelParametersSchemaV3 input_schema, ModelParametersSchemaV3 default_schema, Field f) {
     f.setAccessible(true);
     try {
       this.name = f.getName();
@@ -74,6 +77,10 @@ public class ModelParameterSchemaV3 extends SchemaV3<Iced, ModelParameterSchemaV
 
       o = f.get(default_schema);
       this.default_value = FieldMetadata.consValue(o);
+      
+      if (input_schema != null) {
+      o = f.get(input_schema);
+      this.input_value = FieldMetadata.consValue(o);}
 
       o = f.get(schema);
       this.actual_value = FieldMetadata.consValue(o);
@@ -150,6 +157,15 @@ public class ModelParameterSchemaV3 extends SchemaV3<Iced, ModelParameterSchemaV
       ((IcedWrapper) actual_value).writeUnwrappedJSON(ab);             ab.put1(',');
     } else {
       ab.putJSONStr("actual_value").put1(':').putJSON(actual_value);   ab.put1(',');
+    }
+
+    if (input_value instanceof IcedWrapper) {
+      ab.putJSONStr("input_value").put1(':');
+      ((IcedWrapper) input_value).writeUnwrappedJSON(ab);
+      ab.put1(',');
+    } else {
+      ab.putJSONStr("input_value").put1(':').putJSON(input_value);
+      ab.put1(',');
     }
 
     ab.putJSONStr("level", level);                                            ab.put1(',');

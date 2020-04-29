@@ -58,9 +58,9 @@ public class NaiveBayesModel extends Model<NaiveBayesModel,NaiveBayesModel.Naive
   }
   
   @Override
-  public void computeEffectiveParameters() {
-    super.computeEffectiveParameters();
-    EffectiveParametersUtils.initFoldAssignment(_parms, _effective_parms);
+  public void initActualParamValues() {
+    super.initActualParamValues();
+    EffectiveParametersUtils.initFoldAssignment(_parms);
   }
 
   public ModelSchemaV3 schema() {

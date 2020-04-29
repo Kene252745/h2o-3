@@ -41,13 +41,13 @@ public class StackedEnsembleModel extends Model<StackedEnsembleModel,StackedEnse
   }
 
   @Override
-  public void computeEffectiveParameters() {
-    super.computeEffectiveParameters();
+  public void initActualParamValues() {
+    super.initActualParamValues();
     if (_parms._metalearner_fold_assignment == AUTO) {
-      _effective_parms._metalearner_fold_assignment = Random;
+      _parms._metalearner_fold_assignment = Random;
     }
     if (_parms._metalearner_algorithm == Metalearner.Algorithm.AUTO) {
-      _effective_parms._metalearner_algorithm = Metalearner.Algorithm.glm;
+      _parms._metalearner_algorithm = Metalearner.Algorithm.glm;
     }
   }
   

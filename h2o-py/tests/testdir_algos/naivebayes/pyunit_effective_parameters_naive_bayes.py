@@ -23,7 +23,8 @@ def test_naive_bayes_effective_parameters():
     nb = H2ONaiveBayesEstimator(min_sdev=0.1, eps_sdev=0.5, seed=1234, nfolds=5)
     nb.train(x=predictors, y=response, training_frame=cars)
 
-    assert nb.actual_params['fold_assignment'] == "Random"
+    assert nb.parms['fold_assignment']['input_value'] == 'AUTO'
+    assert nb.parms['fold_assignment']['actual_value'] == 'Random'
     
 if __name__ == "__main__":
   pyunit_utils.standalone_test(test_naive_bayes_effective_parameters)

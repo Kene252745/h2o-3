@@ -502,14 +502,7 @@ NULL
 setGeneric("getParms", function(object) { standardGeneric("getParms") })
 #' @rdname ModelAccessors
 #' @export
-setMethod("getParms", "H2OModel", function(object) { object@allparameters })
-#' @rdname ModelAccessors
-#' @export
-setGeneric("getEffectiveParms", function(object) { standardGeneric("getEffectiveParms") })
-#' @rdname ModelAccessors
-#' @export
-setMethod("getEffectiveParms", "H2OModel", function(object) { object@effective_parameters })
-
+setMethod("getParms", "H2OModel", function(object) { object@parameters })
 #' @rdname ModelAccessors
 #' @export
 setGeneric("getCenters", function(object) { standardGeneric("getCenters") })

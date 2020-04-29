@@ -48,7 +48,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
         implements StreamWriter {
 
   public P _parms;   // TODO: move things around so that this can be protected
-  public P _effective_parms;
+  public P _input_parms;
   public O _output;  // TODO: move things around so that this can be protected
   public String[] _warnings = new String[0];  // warning associated with model building
   public transient String[] _warningsP;     // warnings associated with prediction only (transient, not persisted)
@@ -74,6 +74,9 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
     return models;
   }
 
+  public void setInputParms(P _input_parms) {
+    this._input_parms = _input_parms;
+  }
 
   public interface DeepFeatures {
     Frame scoreAutoEncoder(Frame frame, Key destination_key, boolean reconstruction_error_per_feature);
@@ -917,7 +920,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
     super(selfKey);
     assert parms != null;
     _parms = parms;
-    _effective_parms = parms;
+    initActualParamValues();
     _output = output;  // Output won't be set if we're assert output != null;
     if (_output != null)
       _output.startClock();
@@ -925,16 +928,7 @@ public abstract class Model<M extends Model<M,P,O>, P extends Model.Parameters, 
     Log.info("Starting model "+ selfKey);
   }
 
-  public void computeEffectiveParameters() {
-    if (_parms._fold_assignment == Parameters.FoldAssignmentScheme.AUTO)
-      _effective_parms._fold_assignment = null;
-    if (_parms._stopping_metric == ScoreKeeper.StoppingMetric.AUTO)
-      _effective_parms._stopping_metric = null;
-    if (_parms._distribution == DistributionFamily.AUTO)
-      _effective_parms._distribution = null;
-    if (_parms._categorical_encoding == Parameters.CategoricalEncodingScheme.AUTO)
-      _effective_parms._categorical_encoding = null;
-  }
+  public void initActualParamValues() {}
   
   /**
    * Deviance of given distribution function at predicted value f

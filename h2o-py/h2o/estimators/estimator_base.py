@@ -414,9 +414,6 @@ class H2OEstimator(ModelBase):
             # build a useful dict of the params
             for p in m._model_json["parameters"]:
                 m.parms[p["name"]] = p
-            # build a useful dict of the effective params
-            for p in m._model_json["effective_parameters"]:
-                m._effective_parms[p["name"]] = p    
         H2OEstimator.mixin(self, model_class)
         self.__dict__.update(m.__dict__.copy())
 

@@ -74,12 +74,9 @@ public class DeepLearningModel extends Model<DeepLearningModel,DeepLearningModel
   } // DeepLearningModelOutput
 
     @Override
-    public void computeEffectiveParameters() {
-      super.computeEffectiveParameters();
-      _effective_parms._distribution = _dist._family;
-      EffectiveParametersUtils.initFoldAssignment(_parms, _effective_parms);
-      EffectiveParametersUtils.initStoppingMetric(_parms, _effective_parms, _output.isClassifier(), isSupervised());
-      EffectiveParametersUtils.initCategoricalEncoding(_parms, _effective_parms, _output.nclasses(), Model.Parameters.CategoricalEncodingScheme.OneHotInternal);
+    public void initActualParamValues() {
+      super.initActualParamValues();
+      EffectiveParametersUtils.initFoldAssignment(_parms);
     }
     
   void set_model_info(DeepLearningModelInfo mi) {
