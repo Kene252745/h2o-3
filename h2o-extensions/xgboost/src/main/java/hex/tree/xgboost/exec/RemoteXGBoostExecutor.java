@@ -14,7 +14,6 @@ import water.AutoBuffer;
 import water.H2O;
 import water.Key;
 import water.fvec.Frame;
-import water.util.IcedHashMap;
 
 import java.util.Map;
 
@@ -33,8 +32,7 @@ public class RemoteXGBoostExecutor implements XGBoostExecutor {
             req.checkpoint_bytes = model.model_info()._boosterBytes;
         }
         DataInfo dataInfo = model.model_info().dataInfo();
-        req.parms = new IcedHashMap<>();
-        req.parms.putAll(XGBoostModel.createParamsMap(model._parms, model._output.nclasses(), dataInfo.coefNames()));
+        req.parms = XGBoostModel.createParamsMap(model._parms, model._output.nclasses(), dataInfo.coefNames());
         model._output._native_parameters = BoosterParms.fromMap(req.parms).toTwoDimTable();
         MatrixLoader loader = new FrameMatrixLoader(model, train);
         req.matrix_dir_path = H2O.ICE_ROOT.toString() + "/" + modelKey.toString();

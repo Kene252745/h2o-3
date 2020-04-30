@@ -6,7 +6,6 @@ import hex.schemas.XGBoostExecRespV3;
 import hex.tree.xgboost.exec.LocalXGBoostExecutor;
 import hex.tree.xgboost.exec.XGBoostExecReq;
 import ml.dmlc.xgboost4j.java.XGBoostSaveMatrixTask;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import water.AutoBuffer;
 import water.Key;
@@ -40,18 +39,13 @@ public class RemoteXGBoostHandler extends Handler {
         });
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T readReq(XGBoostExecReqV3 req) {
-        return (T) AutoBuffer.javaSerializeReadPojo(Base64.decodeBase64(req.data));
-    }
-    
     private LocalXGBoostExecutor getExecutor(XGBoostExecReqV3 req) {
         return REGISTRY.get(req.key.key());
     }
 
     @SuppressWarnings("unused")
     public XGBoostExecRespV3 init(int ignored, XGBoostExecReqV3 req) {
-        XGBoostExecReq.Init init = readReq(req);
+        XGBoostExecReq.Init init = req.readReq();
         LocalXGBoostExecutor exec = new LocalXGBoostExecutor(req.key.key(), init);
         REGISTRY.put(exec.modelKey, exec);
         return makeResponse(exec);
@@ -67,7 +61,7 @@ public class RemoteXGBoostHandler extends Handler {
     @SuppressWarnings("unused")
     public XGBoostExecRespV3 update(int ignored, XGBoostExecReqV3 req) {
         LocalXGBoostExecutor exec = getExecutor(req);
-        XGBoostExecReq.Update update = readReq(req);
+        XGBoostExecReq.Update update = req.readReq();
         exec.update(update.treeId);
         return makeResponse(exec);
     }
@@ -96,7 +90,7 @@ public class RemoteXGBoostHandler extends Handler {
 
     @SuppressWarnings("unused")
     public StreamingSchema getMatrix(int ignored, XGBoostExecReqV3 req) {
-        XGBoostExecReq.GetMatrix matrix = readReq(req);
+        XGBoostExecReq.GetMatrix matrix = req.readReq();
         File matrixFile = XGBoostSaveMatrixTask.getMatrixFile(new File(matrix.matrix_dir_path));
         return new StreamingSchema(os -> {
             LOG.debug("Serving up matrix data file " + matrixFile);

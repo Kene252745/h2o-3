@@ -10,6 +10,7 @@ import hex.genmodel.utils.DistributionFamily;
 import hex.glm.GLMTask;
 import hex.tree.PlattScalingHelper;
 import hex.tree.TreeUtils;
+import hex.tree.xgboost.exec.LocalXGBoostExecutor;
 import hex.tree.xgboost.exec.RemoteXGBoostExecutor;
 import hex.tree.xgboost.exec.XGBoostExecutor;
 import hex.tree.xgboost.util.FeatureScore;
@@ -363,8 +364,8 @@ public class XGBoost extends ModelBuilder<XGBoostModel,XGBoostModel.XGBoostParam
         model._output._sparse = isTrainDatasetSparse();
       }
 
-      //XGBoostExecutor exec = new LocalXGBoostExecutor(model, _train);
-      //XGBoostExecutor exec = new RemoteXGBoostExecutor("localhost:54330", model, _train);
+//      XGBoostExecutor exec = new LocalXGBoostExecutor(model, _train);
+//      XGBoostExecutor exec = new RemoteXGBoostExecutor("localhost:54330", model, _train);
       XGBoostExecutor exec = new RemoteXGBoostExecutor(H2O.CLOUD.leader().getIpPortString(), model, _train);
       try {
         model.model_info().setBoosterBytes(exec.setup());

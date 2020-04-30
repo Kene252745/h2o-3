@@ -1,15 +1,13 @@
 package hex.tree.xgboost.exec;
 
-import water.Iced;
-import water.util.IcedHashMap;
-
 import java.io.Serializable;
+import java.util.Map;
 
-public class XGBoostExecReq extends Iced<XGBoostExecReq> implements Serializable {
+public class XGBoostExecReq implements Serializable {
     
     public static class Init extends XGBoostExecReq {
         public int num_nodes;
-        public IcedHashMap<String, Object> parms;
+        public Map<String, Object> parms;
         public String matrix_dir_path;
         public String[] nodes;
         public byte[] checkpoint_bytes;
