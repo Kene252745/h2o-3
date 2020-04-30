@@ -7,14 +7,15 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 ext {
-    xgboostPredictorVersion = "0.3.15"
+    xgboostPredictorVersion = "0.3.16-SNAPSHOT" //"0.3.15"
 }
 
 dependencies {
     compile project(":h2o-genmodel")
-    compile("ai.h2o:xgboost-predictor:${xgboostPredictorVersion}") {
-        exclude group: 'net.jafama', 'module': 'jafama'
-    }
+    compile files("/Users/honza/Code/xgboost-predictor/xgboost-predictor/build/libs/xgboost-predictor-0.3.16-SNAPSHOT.jar")
+//    compile("ai.h2o:xgboost-predictor:${xgboostPredictorVersion}") {
+//        exclude group: 'net.jafama', 'module': 'jafama'
+//    }
     compile "commons-logging:commons-logging:1.2"
     compileOnly 'com.esotericsoftware.kryo:kryo:2.21'
 
