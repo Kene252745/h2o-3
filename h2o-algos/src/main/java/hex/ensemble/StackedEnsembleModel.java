@@ -13,6 +13,7 @@ import water.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static hex.Model.Parameters.FoldAssignmentScheme.AUTO;
 import static hex.Model.Parameters.FoldAssignmentScheme.Random;
@@ -64,6 +65,8 @@ public class StackedEnsembleModel extends Model<StackedEnsembleModel,StackedEnse
     public Metalearner.Algorithm _metalearner_algorithm = Metalearner.Algorithm.AUTO;
     public String _metalearner_params = new String(); //used for clients code-gen only.
     public Model.Parameters _metalearner_parameters;
+    // To keep track of what actually a user set in metalearner_parameters
+    public HashSet<String> _metalearner_parameters_user_override=new HashSet<>();
     public long _seed;
 
     /**
@@ -293,6 +296,30 @@ public class StackedEnsembleModel extends Model<StackedEnsembleModel,StackedEnse
     }
   }
 
+  /**
+   * Checks if a user specified "distribution" for metalearner, if so it will use it otherwise returns Distribution
+   * inferred by distributionFamily unless it's a distribution that requires additional params.
+   * In that case, generate Distribution based on `aModel`.
+   * @param aModel
+   * @return Distribution
+   */
+  private Distribution getDistribution(Model aModel) {
+    // Was distribution set by a user?
+    if (_parms._metalearner_parameters_user_override.contains("distribution")) {
+      return DistributionFactory.getDistribution(_parms._metalearner_parameters);
+    }
+    DistributionFamily df = distributionFamily(aModel);
+    switch (df) {
+      case tweedie:
+      case huber:
+      case quantile:
+      case custom:
+        return DistributionFactory.getDistribution(aModel._parms);
+      default:
+        return DistributionFactory.getDistribution(df);
+    }
+  }
+
   void checkAndInheritModelProperties() {
     if (null == _parms._base_models || 0 == _parms._base_models.length)
       throw new H2OIllegalArgumentException("When creating a StackedEnsemble you must specify one or more models; found 0.");
@@ -386,7 +413,31 @@ public class StackedEnsembleModel extends Model<StackedEnsembleModel,StackedEnse
       } else {
         // !retrievedFirstModelParams: this is the first base_model
         this.modelCategory = aModel._output.getModelCategory();
-        this._dist = DistributionFactory.getDistribution(distributionFamily(aModel));
+        this._dist = getDistribution(aModel);
+        _parms._distribution = _dist._family;
+        switch (_parms._distribution) {
+          case custom:
+            if (_parms._metalearner_parameters_user_override.contains("distribution")) {
+              _parms._custom_distribution_func = _parms._metalearner_parameters._custom_distribution_func;
+            } else {
+              _parms._custom_distribution_func = aModel._parms._custom_distribution_func;
+            }
+            break;
+          case huber:
+            if (_parms._metalearner_parameters_user_override.contains("distribution")) {
+              _parms._huber_alpha = _parms._metalearner_parameters._huber_alpha;
+            } else {
+              _parms._huber_alpha = aModel._parms._huber_alpha;
+            }
+            break;
+          case tweedie:
+            _parms._tweedie_power = _dist._tweediePower;
+            break;
+          case quantile:
+            _parms._quantile_alpha = _dist._quantileAlpha;
+            break;
+        }
+
         responseColumn = aModel._parms._response_column;
 
         if (! _parms._response_column.equals(responseColumn))  // _params._response_column can't be null, validated by ModelBuilder
@@ -398,7 +449,6 @@ public class StackedEnsembleModel extends Model<StackedEnsembleModel,StackedEnse
         if (basemodel_fold_assignment == AUTO) basemodel_fold_assignment = Random;
         basemodel_fold_column = aModel._parms._fold_column;
         seed = aModel._parms._seed;
-        _parms._distribution = aModel._parms._distribution;
         retrievedFirstModelParams = true;
       }
 
